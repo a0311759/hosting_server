@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error 404</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom right, #d2b48c, #8b4513), 
+                        url('https://www.transparenttextures.com/patterns/white-wave.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .container {
+            text-align: center;
+            padding-top: 20%;
+            color: #4b2e11;
+        }
+
+        .error-container {
+            background-color: #d2b48c;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 1em;
+        }
+
+        p {
+            font-size: 18px;
+            margin-bottom: 2em;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75em 1.5em;
+            border-radius: 5px;
+            border: none;
+            background-color: #a0522d;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #8b4513;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-container">
+            <h1>index.html not found in folder file system</h1>
+            <p>Upload file and try again later.</p>
+            <a href="#" class="btn" onclick="goBack()">Back</a>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>

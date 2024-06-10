@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom right, #d2b48c, #8b4513), 
+                        url('https://www.transparenttextures.com/patterns/white-wave.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        h1 {
+            margin-bottom: 1em;
+            font-size: 24px;
+            color: #4b2e11;
+            text-align: center;
+            padding-top: 1em;
+        }
+
+        .list {
+            margin-top: 1em;
+            text-align: left;
+            max-width: 80%;
+            margin: 0 auto;
+            overflow-y: auto;
+            max-height: 80vh; /* Set maximum height and enable scroll */
+        }
+
+        .project {
+            margin-bottom: 1em;
+            padding: 1em;
+            background-color: rgba(255, 235, 205, 0.9);
+            border-radius: 5px;
+        }
+
+        .input-field {
+            display: block;
+            width: calc(100% - 1.5em); /* Adjust width to match screen width minus padding and border */
+            padding: 0.75em;
+            margin-bottom: 1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box; /* Include padding in input width */
+        }
+
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 0.75em;
+            margin: 0.5em auto;
+            border-radius: 5px;
+            border: none;
+            background-color: #a0522d;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #8b4513;
+        }
+
+        .message {
+            margin-top: 1em;
+            font-size: 14px;
+            color: 00dd33;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome, {{ username }}</h1>
+
+    <section>
+        <input type="text" id="projectName" class="input-field" placeholder="Project Name">
+        <button class="btn" onclick="createProject()">Create Project</button>
+    </section>
+    <section class="message" id="message"></section>
+
+    <div class="list" id="projectList">
+        <h2>Your Projects:</h2>
+        {% for folder in folders %}
+        <div class="project" id="project_{{ loop.index }}">
+            <h3>{{ folder }}</h3>
+            <button class="btn" onclick="runProject('{{ folder }}')">Run</button>
+            <button class="btn" onclick="openFolder('{{ username }}', '{{ folder }}')">Open Folder</button>
+            <button class="btn" onclick="deleteProject('{{ folder }}')">Delete</button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        function createProject() {
+            const projectName = document.getElementById('projectName').value;
+            const message = document.getElementById('message');
+    
+            if (!projectName) {
+                message.innerHTML = 'Project name is required.';
+                return;
+            }
+    
+            // Check if project with the same name already exists
+            const existingProjects = document.querySelectorAll('.project h3');
+            for (let i = 0; i < existingProjects.length; i++) {
+                if (existingProjects[i].innerText === projectName) {
+                    message.innerHTML = 'Project with the same name already exists.';
+                    return;
+                }
+            }
+    
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', `/dashboard/{{ username }}`, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        message.style.color = 'green';
+                        message.innerHTML = 'Project created successfully!';
+                        document.getElementById('projectName').value = ''; // Clear input field
+                        // Add the new project to the project list
+                        const projectList = document.getElementById('projectList');
+                        const newProject = document.createElement('div');
+                        newProject.classList.add('project');
+                        newProject.innerHTML = `
+                            <h3>${projectName}</h3>
+                            <button class="btn" onclick="runProject('${projectName}')">Run</button>
+                            <button class="btn" onclick="openFolder('{{ username }}', '${projectName}')">Open Folder</button>
+                            <button class="btn" onclick="deleteProject('${projectName}')">Delete</button>
+                        `;
+                        projectList.appendChild(newProject);
+                    } else {
+                        message.style.color = 'red';
+                        message.innerHTML = 'Failed to create project: ' + xhr.responseText;
+                    }
+                }
+            };
+            xhr.send(JSON.stringify({ project_name: projectName }));
+        }
+
+        function deleteProject(projectName) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('DELETE', `/dashboard/{{ username }}?project_name=` + projectName, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        // Remove the project from the project list
+                        const projects = document.querySelectorAll('.project');
+                        projects.forEach(project => {
+                            if (project.querySelector('h3').innerText === projectName) {
+                                project.parentNode.removeChild(project);
+                            }
+                        });
+                    } else {
+                        console.error('Failed to delete project: ' + xhr.responseText);
+                    }
+                }
+            };
+            xhr.send();
+        }
+    
+        function openFolder(username, projectName) {
+            window.location.href = `/dashboard/${username}/${projectName}`;
+        }
+        
+        function runProject(projectName) {
+            window.location.href = `/dashboard/{{ username }}/${projectName}/run`;
+        }
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project: {{ project_name }}</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom right, #d2b48c, #8b4513), 
+                        url('https://www.transparenttextures.com/patterns/white-wave.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        h1 {
+            margin-bottom: 1em;
+            font-size: 24px;
+            color: #4b2e11;
+            text-align: center;
+            padding-top: 1em;
+        }
+
+        .list {
+            margin-top: 1em;
+            text-align: left;
+            max-width: 80%;
+            margin: 0 auto;
+            overflow-y: auto;
+            max-height: 80vh;
+        }
+
+        .file {
+            margin-bottom: 1em;
+            padding: 1em;
+            background-color: rgba(255, 235, 205, 0.9);
+            border-radius: 5px;
+        }
+
+        .input-field {
+            display: block;
+            width: calc(100% - 1.5em);
+            padding: 0.75em;
+            margin-bottom: 1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 0.75em;
+            margin: 0.5em auto;
+            border-radius: 5px;
+            border: none;
+            background-color: #a0522d;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #8b4513;
+        }
+
+        .message {
+            margin-top: 1em;
+            font-size: 14px;
+            color: 00dd33;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Project: {{ project_name }}</h1>
+
+    <section>
+        <input type="file" id="fileInput" class="input-field">
+        <button class="btn" onclick="uploadFile()">Upload File</button>
+    </section>
+    <section class="message" id="message"></section>
+
+    <!--<div class="list" id="fileList">
+        <h2>Project Files:</h2>
+        {% for file in files %}
+        <div class="file" id="file_{{ loop.index }}">
+            <h3>{{ file }}</h3>
+            <button class="btn" onclick="editFile('{{ file }}')">Edit</button>
+            <button class="btn" onclick="deleteFile('{{ file }}')">Delete</button>
+        </div>
+        {% endfor %}
+    </div>-->
+
+    <div class="list" id="fileList">
+        <h2>Your Files:</h2>
+        {% for file in files %}
+        <div class="file" id="file_{{ loop.index }}">
+            <h3>{{ file }}</h3>
+            {% if file.endswith(('.html', '.css', '.js')) %}
+            <button class="btn" onclick="editFile('{{ file }}')">Edit</button>
+            {% endif %}
+            <button class="btn" onclick="deleteFile('{{ file }}')">Delete</button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const message = document.getElementById('message');
+
+            if (fileInput.files.length === 0) {
+                message.innerHTML = 'Please select a file to upload.';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', `/dashboard/{{ username }}/{{ project_name }}`, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        message.style.color = 'green';
+                        message.innerHTML = 'File uploaded successfully!';
+                                // Append new file to the file list
+        const fileList = document.getElementById('fileList');
+        const newFile = document.createElement('div');
+        newFile.classList.add('file');
+        newFile.innerHTML = `
+            <h3>${file.name}</h3>
+            <button class="btn" onclick="editFile('${file.name}')">Edit</button>
+            <button class="btn" onclick="deleteFile('${file.name}')">Delete</button>
+        `;
+        fileList.appendChild(newFile);
+        fileInput.value = ''; // Clear the input field
+    } else {
+        message.style.color = 'red';
+        message.innerHTML = 'Failed to upload file: ' + xhr.responseText;
+    }
+    }
+    };
+    xhr.send(formData);
+}
+
+function deleteFile(fileName) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('DELETE', `/dashboard/{{ username }}/{{ project_name }}?filename=` + fileName, true);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                // Remove the file from the file list
+                const files = document.querySelectorAll('.file');
+                files.forEach(file => {
+                    if (file.querySelector('h3').innerText === fileName) {
+                        file.parentNode.removeChild(file);
+                    }
+                });
+            } else {
+                console.error('Failed to delete file: ' + xhr.responseText);
+            }
+        }
+    };
+    xhr.send();
+}
+
+function editFile(fileName) {
+    window.location.href = `/dashboard/{{ username }}/{{ project_name }}/edit?filename=${fileName}`;
+}
+</script>
+</body>
+</html>
+

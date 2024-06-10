@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom right, #d2b48c, #8b4513), 
+                        url('https://www.transparenttextures.com/patterns/white-wave.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .container {
+            background: rgba(255, 235, 205, 0.9);
+            padding: 2em;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+            max-width: 80%;
+        }
+
+        h1 {
+            margin-bottom: 1em;
+            font-size: 24px;
+            color: #4b2e11;
+        }
+
+        .input-field {
+            display: block;
+            width: 100%;
+            padding: 0.5em;
+            margin-bottom: 1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75em 1.5em;
+            margin: 0.5em 0;
+            border-radius: 5px;
+            border: none;
+            background-color: #a0522d;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #8b4513;
+        }
+
+        .message {
+            margin-top: 1em;
+            font-size: 14px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Login</h1>
+        <input type="text" id="username" class="input-field" placeholder="Username">
+        <input type="password" id="password" class="input-field" placeholder="Password">
+        <button class="btn" onclick="submitLogin()">Login</button>
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        function submitLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const message = document.getElementById('message');
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/login', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        window.location.href = '/dashboard/' + username;
+                    } else {
+                        message.style.color = 'red';
+                        message.innerHTML = 'Login failed: ' + xhr.responseText;
+                    }
+                }
+            };
+            xhr.send(JSON.stringify({ username: username, password: password }));
+        }
+    </script>
+</body>
+</html>
+  
